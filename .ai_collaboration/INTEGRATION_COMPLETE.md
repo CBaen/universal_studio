@@ -6,6 +6,39 @@
 
 ---
 
+## Changelog
+
+### 2025-11-19 22:31 - Schema Update (Session 4)
+**Updated Backend to Match New Gemini Schema**
+
+**Changes Made**:
+1. Added new types to `manifest_types.py`:
+   - `ViralAgentArchetype` enum (HYPE, DISCOVERY, COMMUNITY)
+   - `ViralStrategy` dataclass (3-agent viral strategy)
+   - `ViralCouncil` dataclass (hype/discovery/community agents)
+   - `RenderJobStatus` dataclass (simplified status reporting)
+
+2. Updated `RenderStatus` dataclass:
+   - Changed `exportJobs` from `List[ExportArtifact]` to `List[RenderJobStatus]`
+   - Made `estimatedTimeRemaining` required (was Optional)
+
+3. Updated `main.py`:
+   - Added `estimate_time_remaining()` method for dynamic time estimates
+   - Updated all `update_status()` calls to provide `estimated_time_remaining`
+   - Modified status reporting to create `RenderJobStatus` objects
+   - Added phase timing for accurate progress estimation
+
+**Test Result**: ✅ PASSED
+- Manifest parsing: Working
+- All 5 phases executed: Working
+- Status reporting: Working with new schema
+- `estimatedTimeRemaining`: Always provided (0 when complete)
+- `exportJobs`: Correctly formatted as RenderJobStatus[]
+
+**Integration Status**: Ready for Gemini connection
+
+---
+
 ## Integration Architecture
 
 ```

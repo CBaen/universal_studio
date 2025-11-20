@@ -227,6 +227,46 @@ class RenderManifest:
     engineConfig: Optional[EngineConfiguration] = None
 
 
+# Viral Council Types (3-Agent Viral Strategy System)
+
+class ViralAgentArchetype(str, Enum):
+    HYPE = "HYPE"
+    DISCOVERY = "DISCOVERY"
+    COMMUNITY = "COMMUNITY"
+
+
+@dataclass
+class ViralStrategy:
+    """Strategy from a single viral agent"""
+    agentName: str
+    agentArchetype: ViralAgentArchetype
+    title: str
+    thumbnailConcept: str
+    description: str
+    tags: List[str]
+    hashtags: List[str]
+    predictionScore: int
+    reasoning: str
+
+
+@dataclass
+class ViralCouncil:
+    """3-agent viral strategy council"""
+    hypeAgent: ViralStrategy
+    discoveryAgent: ViralStrategy
+    communityAgent: ViralStrategy
+
+
+@dataclass
+class RenderJobStatus:
+    """Simplified status for a single render job (for status reporting)"""
+    id: str
+    platform: str
+    status: Literal["pending", "processing", "completed", "failed"]
+    downloadUrl: Optional[str] = None
+    error: Optional[str] = None
+
+
 @dataclass
 class RenderStatus:
     """
@@ -239,8 +279,8 @@ class RenderStatus:
     status: Literal["IDLE", "PROCESSING", "COMPLETED", "FAILED"]
     progress: float  # 0.0 to 1.0
     currentPhase: str
-    estimatedTimeRemaining: Optional[int] = None  # seconds
-    exportJobs: List[ExportArtifact] = field(default_factory=list)
+    estimatedTimeRemaining: int  # seconds (required)
+    exportJobs: List[RenderJobStatus] = field(default_factory=list)
     errors: List[str] = field(default_factory=list)
     lastUpdated: str = field(default_factory=lambda: datetime.now().isoformat())
 

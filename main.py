@@ -20,6 +20,7 @@ from datetime import datetime
 from manifest_types import (
     RenderManifest,
     RenderStatus,
+    RenderJobStatus,
     ExportArtifact,
     Scene,
     VisualBeat,
@@ -157,6 +158,7 @@ class ProductionDirector:
                 status="FAILED",
                 progress=0.0,
                 phase="Failed to load manifest",
+                estimated_time_remaining=0,
                 errors=[str(e)]
             )
             return None
@@ -181,11 +183,17 @@ class ProductionDirector:
 
         try:
             # Initialize status
+            # Calculate rough time estimate based on scene count
+            total_scenes = len(manifest.scenes)
+            total_beats = sum(len(scene.visualBeats) for scene in manifest.scenes)
+            estimated_time = (total_scenes * 30) + (total_beats * 45)  # Rough estimate
+
             self.update_status(
                 project_id=manifest.projectId,
                 status="PROCESSING",
                 progress=0.0,
-                phase="Starting production..."
+                phase="Starting production...",
+                estimated_time_remaining=estimated_time
             )
 
             # Phase 1: Generate TTS audio
@@ -207,12 +215,25 @@ class ProductionDirector:
             elapsed = time.time() - start_time
             logger.info(f"Production complete in {elapsed:.1f}s")
 
+            # Convert ExportArtifact objects to RenderJobStatus for status reporting
+            job_statuses = [
+                RenderJobStatus(
+                    id=job.id,
+                    platform=job.platform,
+                    status=job.status,
+                    downloadUrl=job.downloadUrl,
+                    error=None
+                )
+                for job in manifest.exportJobs
+            ]
+
             self.update_status(
                 project_id=manifest.projectId,
                 status="COMPLETED",
                 progress=1.0,
                 phase=f"Production complete ({elapsed:.1f}s)",
-                export_jobs=manifest.exportJobs
+                estimated_time_remaining=0,
+                export_jobs=job_statuses
             )
 
         except Exception as e:
@@ -222,13 +243,28 @@ class ProductionDirector:
                 status="FAILED",
                 progress=0.0,
                 phase="Production failed",
+                estimated_time_remaining=0,
                 errors=[str(e)]
             )
+
+    def estimate_time_remaining(self, progress: float, start_time: float, total_scenes: int, total_beats: int) -> int:
+        """Estimate remaining time based on current progress."""
+        if progress == 0:
+            # Initial estimate
+            return (total_scenes * 30) + (total_beats * 45)
+
+        elapsed = time.time() - start_time
+        if progress > 0:
+            total_estimated = elapsed / progress
+            remaining = total_estimated - elapsed
+            return max(0, int(remaining))
+        return 0
 
     def phase_generate_tts(self, manifest: RenderManifest):
         """Phase 1: Generate TTS audio for all scenes."""
         logger.info("PHASE 1: Generating TTS audio...")
         total_scenes = len(manifest.scenes)
+        phase_start = time.time()
 
         for idx, scene in enumerate(manifest.scenes):
             logger.info(f"  Generating audio for scene {scene.sceneNumber}/{total_scenes}")
@@ -236,11 +272,15 @@ class ProductionDirector:
 
             # Update progress
             progress = (idx / total_scenes) * 0.25  # TTS is 25% of total
+            total_beats = sum(len(s.visualBeats) for s in manifest.scenes)
+            estimated_time = self.estimate_time_remaining(progress, phase_start, total_scenes, total_beats)
+
             self.update_status(
                 project_id=manifest.projectId,
                 status="PROCESSING",
                 progress=progress,
-                phase=f"Generating scene {scene.sceneNumber}/{total_scenes} audio"
+                phase=f"Generating scene {scene.sceneNumber}/{total_scenes} audio",
+                estimated_time_remaining=estimated_time
             )
 
             # TODO: Generate TTS audio
@@ -262,7 +302,9 @@ class ProductionDirector:
         logger.info("PHASE 2: Generating visuals...")
 
         total_beats = sum(len(scene.visualBeats) for scene in manifest.scenes)
+        total_scenes = len(manifest.scenes)
         beat_count = 0
+        phase_start = time.time()
 
         for scene in manifest.scenes:
             for beat in scene.visualBeats:
@@ -272,11 +314,14 @@ class ProductionDirector:
 
                 # Update progress
                 progress = 0.25 + (beat_count / total_beats) * 0.35  # Visuals are 35% of total
+                estimated_time = self.estimate_time_remaining(progress, phase_start, total_scenes, total_beats)
+
                 self.update_status(
                     project_id=manifest.projectId,
                     status="PROCESSING",
                     progress=progress,
-                    phase=f"Generating visual {beat_count}/{total_beats}"
+                    phase=f"Generating visual {beat_count}/{total_beats}",
+                    estimated_time_remaining=estimated_time
                 )
 
                 # TODO: Generate image/video based on mediaType
@@ -306,11 +351,17 @@ class ProductionDirector:
             logger.info("  No audioMood specified, skipping music generation")
             return
 
+        phase_start = time.time()
+        total_scenes = len(manifest.scenes)
+        total_beats = sum(len(s.visualBeats) for s in manifest.scenes)
+        estimated_time = self.estimate_time_remaining(0.60, phase_start, total_scenes, total_beats)
+
         self.update_status(
             project_id=manifest.projectId,
             status="PROCESSING",
             progress=0.60,
-            phase="Generating background music"
+            phase="Generating background music",
+            estimated_time_remaining=estimated_time
         )
 
         logger.info(f"  Mood: {manifest.audioMood}")
@@ -339,16 +390,23 @@ class ProductionDirector:
             logger.info("  No SFX requested, skipping")
             return
 
+        phase_start = time.time()
+        total_scenes = len(manifest.scenes)
+        total_beats = sum(len(s.visualBeats) for s in manifest.scenes)
+
         for idx, scene in enumerate(sfx_scenes):
             logger.info(f"  Generating SFX for scene {scene.sceneNumber}")
             logger.info(f"    Description: {scene.soundEffectDescription}")
 
             progress = 0.70 + (idx / len(sfx_scenes)) * 0.10  # SFX is 10% of total
+            estimated_time = self.estimate_time_remaining(progress, phase_start, total_scenes, total_beats)
+
             self.update_status(
                 project_id=manifest.projectId,
                 status="PROCESSING",
                 progress=progress,
-                phase=f"Generating SFX {idx + 1}/{len(sfx_scenes)}"
+                phase=f"Generating SFX {idx + 1}/{len(sfx_scenes)}",
+                estimated_time_remaining=estimated_time
             )
 
             # TODO: Generate SFX
@@ -369,17 +427,24 @@ class ProductionDirector:
         """Phase 5: Assemble final videos for each export job."""
         logger.info("PHASE 5: Assembling videos...")
 
+        phase_start = time.time()
+        total_scenes = len(manifest.scenes)
+        total_beats = sum(len(s.visualBeats) for s in manifest.scenes)
+
         for idx, job in enumerate(manifest.exportJobs):
             logger.info(f"  Assembling export job {idx + 1}/{len(manifest.exportJobs)}")
             logger.info(f"    Platform: {job.platform}")
             logger.info(f"    Resolution: {job.renderResolution} {job.renderAspectRatio}")
 
             progress = 0.80 + (idx / len(manifest.exportJobs)) * 0.20  # Assembly is 20% of total
+            estimated_time = self.estimate_time_remaining(progress, phase_start, total_scenes, total_beats)
+
             self.update_status(
                 project_id=manifest.projectId,
                 status="PROCESSING",
                 progress=progress,
-                phase=f"Assembling {job.platform} video {idx + 1}/{len(manifest.exportJobs)}"
+                phase=f"Assembling {job.platform} video {idx + 1}/{len(manifest.exportJobs)}",
+                estimated_time_remaining=estimated_time
             )
 
             # TODO: Assemble video
@@ -409,6 +474,7 @@ class ProductionDirector:
         status: str,
         progress: float,
         phase: str,
+        estimated_time_remaining: int = 0,
         export_jobs: list = None,
         errors: list = None
     ):
@@ -420,7 +486,8 @@ class ProductionDirector:
             status: IDLE, PROCESSING, COMPLETED, FAILED
             progress: 0.0 to 1.0
             phase: Current phase description
-            export_jobs: List of export jobs (for completion)
+            estimated_time_remaining: Estimated seconds remaining (required)
+            export_jobs: List of RenderJobStatus objects (for completion)
             errors: List of error messages
         """
         self.current_status = RenderStatus(
@@ -428,6 +495,7 @@ class ProductionDirector:
             status=status,
             progress=progress,
             currentPhase=phase,
+            estimatedTimeRemaining=estimated_time_remaining,
             exportJobs=export_jobs or [],
             errors=errors or []
         )
@@ -445,7 +513,8 @@ class ProductionDirector:
                         "id": job.id,
                         "platform": job.platform,
                         "status": job.status,
-                        "downloadUrl": job.downloadUrl
+                        "downloadUrl": job.downloadUrl,
+                        "error": job.error
                     }
                     for job in self.current_status.exportJobs
                 ],

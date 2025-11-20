@@ -1,0 +1,82 @@
+{
+  "projectId": "proj_tesla_001",
+  "projectTitle": "Tesla's Pyramids",
+  "generatedAt": "2024-05-20T14:30:00.000Z",
+  "globalSettings": {
+    "genre": "Mystery / Thriller",
+    "visualStyle": "Neon Cyberpunk / Sci-Fi",
+    "aspectRatio": "16:9",
+    "masterVolume": {
+      "voice": 1.0,
+      "music": 0.3,
+      "sfx": 0.6
+    },
+    "backgroundAudioUrl": null
+  },
+  "audioMood": "Suspenseful (Eerie, Low drones)",
+  "scenes": [
+    {
+      "sceneNumber": 1,
+      "durationSeconds": 6.5,
+      "narratorScript": "Some say the pyramids weren't tombs at all, but wireless power plants built by a lost civilization.",
+      "audioUrl": null,
+      "visualBeats": [
+        {
+          "id": "beat_01_01",
+          "beatIndex": 0,
+          "description": "A glowing neon pyramid in a desert storm",
+          "productionPrompt": "Cinematic shot of the Great Pyramid of Giza at night, glowing with neon blue circuitry, cyberpunk aesthetic, 8k resolution, heavy rain, volumetric fog",
+          "durationSeconds": 3.5,
+          "mediaType": "IMAGE",
+          "kenBurns": "Zoom In",
+          "transition": "Cross Dissolve"
+        },
+        {
+          "id": "beat_01_02",
+          "beatIndex": 1,
+          "description": "Nikola Tesla looking at blueprints",
+          "productionPrompt": "Vintage photo of Nikola Tesla in his lab, examining glowing blue holographic blueprints of a pyramid, moody lighting, tesla coils in background",
+          "durationSeconds": 3.0,
+          "mediaType": "IMAGE",
+          "kenBurns": "Pan Right",
+          "transition": "Cut"
+        }
+      ],
+      "soundEffectDescription": "Deep electrical hum turning into a thunder crack",
+      "sfxTriggerPhrase": "wireless power plants",
+      "sfxDelay": 2.5,
+      "sfxVolume": 0.8
+    }
+  ],
+  "exportJobs": [
+    {
+      "id": "job_yt_1080p",
+      "platform": "youtube",
+      "type": "video_full",
+      "startSceneIndex": 0,
+      "endSceneIndex": 0,
+      "startTime": 0,
+      "endTime": 6.5,
+      "duration": 6.5,
+      "renderResolution": "1080p",
+      "renderAspectRatio": "16:9",
+      "status": "pending"
+    },
+    {
+      "id": "job_tiktok_part1",
+      "platform": "tiktok",
+      "type": "video_part",
+      "partNumber": 1,
+      "totalParts": 1,
+      "startSceneIndex": 0,
+      "endSceneIndex": 0,
+      "startTime": 0,
+      "endTime": 6.5,
+      "duration": 6.5,
+      "renderResolution": "1080p",
+      "renderAspectRatio": "9:16",
+      "watermarkText": "Part 1 | Tesla Mysteries",
+      "status": "pending"
+    }
+  ]
+}

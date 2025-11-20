@@ -1,0 +1,23 @@
+{
+  "projectId": "proj_tesla_001",
+  "status": "COMPLETED",
+  "progress": 1.0,
+  "currentPhase": "Production complete (0.0s)",
+  "estimatedTimeRemaining": null,
+  "exportJobs": [
+    {
+      "id": "job_yt_1080p",
+      "platform": "youtube",
+      "status": "completed",
+      "downloadUrl": "output/videos/proj_tesla_001_youtube_16x9.mp4"
+    },
+    {
+      "id": "job_tiktok_part1",
+      "platform": "tiktok",
+      "status": "completed",
+      "downloadUrl": "output/videos/proj_tesla_001_tiktok_9x16.mp4"
+    }
+  ],
+  "errors": [],
+  "lastUpdated": "2025-11-19T21:06:53.863138"
+}

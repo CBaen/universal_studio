@@ -30,6 +30,7 @@ ENV/
 # IDE
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 *~
@@ -42,6 +43,8 @@ engines/tts/cache/
 engines/tts/models/*.onnx
 engines/tts/models/*.json
 engines/tts/research/benchmarks/audio_samples/
+engines/tts/research/repos/
+engines/tts/research/papers/
 
 # Temporary files
 *.tmp
@@ -52,6 +55,10 @@ engines/tts/research/benchmarks/audio_samples/
 .DS_Store
 Thumbs.db
 desktop.ini
+nul
+
+# Claude Code
+CLAUDE.md
 
 # Colab
 colab/*.pyc

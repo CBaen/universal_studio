@@ -1,0 +1,9 @@
+# Video Engine Dependencies
+# To be populated during research phase
+
+# Core dependencies (anticipated)
+# ffmpeg-python>=0.2.0
+# moviepy>=1.0.3
+# Pillow>=10.0.0
+# numpy>=1.24.0
+# tqdm>=4.65.0  # Progress bars for rendering

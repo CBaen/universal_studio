@@ -1,0 +1,9 @@
+# Music Engine Dependencies
+# To be populated during research phase
+
+# Core dependencies (anticipated)
+# audiocraft>=1.0.0
+# torch>=2.0.0
+# torchaudio>=2.0.0
+# pydub>=0.25.0
+# librosa>=0.10.0

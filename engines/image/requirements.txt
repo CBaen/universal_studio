@@ -1,0 +1,9 @@
+# Image Engine Dependencies
+# To be populated during research phase
+
+# Core dependencies (anticipated)
+# Pillow>=10.0.0
+# diffusers>=0.21.0
+# transformers>=4.35.0
+# torch>=2.0.0
+# openai>=1.0.0

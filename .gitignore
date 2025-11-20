@@ -1,0 +1,66 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# TTS Engine Specific
+engines/tts/cache/
+engines/tts/models/*.onnx
+engines/tts/models/*.json
+engines/tts/research/benchmarks/audio_samples/
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Colab
+colab/*.pyc
+
+# Secrets
+.env
+*.key
+*.pem
+credentials.json
+
+# Large files (keep structure, ignore content)
+# Cache directories exist but are empty in repo
